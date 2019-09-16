@@ -1,0 +1,23 @@
+{
+  "name": "webtools_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyf0611/webtools_server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cyf0611/webtools_server/issues"
+  },
+  "homepage": "https://github.com/cyf0611/webtools_server#readme",
+  "dependencies": {
+    "koa-router": "^7.4.0",
+    "koa2": "^2.0.0-alpha.7"
+  }
+}
