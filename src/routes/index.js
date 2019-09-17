@@ -1,10 +1,9 @@
-const Router = require('koa-router')
+const express = require('express');
+const path = require('path');
+const backRouter = express.Router();
+const backController = require(path.join(__dirname, '../controllers/index.js'));
 
-let Route = new Router();
 
-Route.get("/a", async (ctx) => {
-    console.log("object");
-    ctx.body = 'test22323';
-})
+backRouter.get("/test", backController.test);
 
-module.exports = Route.routes();
+module.exports = backRouter;
