@@ -3,7 +3,7 @@ const path = require('path');
 const backRouter = express.Router();
 const backController = require(path.join(__dirname, '../controllers/index.js'));
 
-
-backRouter.get("/test", backController.test);
+//获取当前角色关注的话题
+backRouter.get("/following-topic-contributions", backController.followingTopicContributions);
 
 module.exports = backRouter;
