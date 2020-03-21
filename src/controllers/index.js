@@ -5,36 +5,25 @@ let getTopicAnswerUrl = (userId = "bei-piao-de-lu-62", topicId, offset = 0, limi
 }
 
 exports.followingTopicContributions = (req, res) => {
-    request.get("https://www.zhihu.com/api/v4/members/bei-piao-de-lu-62/following-topic-contributions", (error, response, body) => {
-        if (error) {
-            res.end(error);
-            return;
+    console.log(req.query);
+    res.json({ data: 'ok' });
+}
+
+exports.watermark = (req, res) => {
+    function getWatermarkApi(url) {
+        return `http://wx.qq-5.com/app/index.php?i=2&t=0&v=2.0&from=wxapp&c=entry&a=wxapp&do=query&m=tommie_duanshiping&sign=4ebafe13731541e89d27b3666a13ec1e&url=${url}`;
+    }
+    let url = req.query && req.query.url;
+    if (!url) {
+        return res.json({ data: '参数不合法' });
+    }
+
+    request(getWatermarkApi(url), (err, response, body) => {
+        let data = JSON.parse(body);
+        if (data && !data.errno) {
+            data.data.downurl = unescape(data.data.downurl);
         }
-        let data = JSON.parse(body).data;
-        let result = [];
-        data.forEach(topicObj => {
-            let topicAnswerUrl = getTopicAnswerUrl("bei-piao-de-lu-62", topicObj.topic.id);
-            console.log(topicAnswerUrl);
-            (async () => {
-                await new Promise(resolve => {
-                    request.get(topicAnswerUrl, (topicAnsweErr, topicAnsweRes, topicAnsweBody) => {
-                        if (topicAnsweErr) {
-                            res.end(error);
-                            return;
-                        }
-
-                        let comment_counts = JSON.parse(topicAnsweBody).data.reduce((accumulator, currentValue) => {
-                            return accumulator + currentValue.comment_count;
-                        });
-                        result.push(comment_counts);
-                        resolve(result);
-                    });
-                });
-                console.log(result);
-                res.end(result);
-            })();
-        })
-
+        res.json(data);
     });
 }
 
