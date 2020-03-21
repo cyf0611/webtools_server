@@ -24,7 +24,9 @@ fs.readFile(path.join(__dirname, "../../config.json"), 'utf-8', (err, data) => {
     });
 
 
-    connection.query(`select * from question`, (err, result) => {
-        console.log(result);
-    });
+    //记录操作记录
+    exports.logs = (obj, callback) => {
+        var sql = `insert logs set ?`;
+        connection.query(sql, obj, callback)
+    };
 })

@@ -52,7 +52,7 @@ const router = require(path.join(__dirname, './src/routes/index.js'));
 
 app.use("/api", router);
 
-const server = app.listen(3000, () => {
+const server = app.listen(3001, () => {
     let port = server.address().port;
     console.log('服务开启成功，监听 %s 端口,supervisor', port, moment().format('YYYY-MM-DD HH:mm:ss'));
 });

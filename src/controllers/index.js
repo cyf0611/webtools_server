@@ -1,4 +1,7 @@
+const path = require('path');
 const request = require("request");
+const mysql = require(path.join(__dirname, '../scripts/mysql.js'));
+const moment = require('moment');
 
 let getTopicAnswerUrl = (userId = "bei-piao-de-lu-62", topicId, offset = 0, limit = 20) => {
     return `https://www.zhihu.com/api/v4/members/${userId}/topics/${topicId}/answers?include=data%5B*%5D.comment_count&offset=${offset}&limit=${limit}&sort_by=created`;
@@ -14,8 +17,15 @@ exports.watermark = (req, res) => {
         return `http://wx.qq-5.com/app/index.php?i=2&t=0&v=2.0&from=wxapp&c=entry&a=wxapp&do=query&m=tommie_duanshiping&sign=4ebafe13731541e89d27b3666a13ec1e&url=${url}`;
     }
     let url = req.query && req.query.url;
+    mysql.logs({
+        time: moment().format('YYYY-MM-DD HH:mm:ss'),
+        url: url,
+        cip: req.connection.remoteAddress.replace('::ffff:', ''),
+        type: 1,
+    });
+
     if (!url) {
-        return res.json({ data: '参数不合法' });
+        return res.json({ errno:1 ,data: '参数不合法' });
     }
 
     request(getWatermarkApi(url), (err, response, body) => {
