@@ -38,3 +38,7 @@ exports.watermark = (req, res) => {
 }
 
 
+
+exports.wxinfo = (req, res) => {
+    res.json({errno: 0})
+}
