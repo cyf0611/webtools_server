@@ -3,6 +3,10 @@ const request = require("request");
 const mysql = require(path.join(__dirname, '../scripts/mysql.js'));
 const moment = require('moment');
 
+let returnErr = (res, err) => {
+    res.json({code: 502, msg: JSON.stringify(err)});
+    return false;
+}
 let getTopicAnswerUrl = (userId = "bei-piao-de-lu-62", topicId, offset = 0, limit = 20) => {
     return `https://www.zhihu.com/api/v4/members/${userId}/topics/${topicId}/answers?include=data%5B*%5D.comment_count&offset=${offset}&limit=${limit}&sort_by=created`;
 }
@@ -42,4 +46,34 @@ exports.watermark = (req, res) => {
 
 exports.wxinfo = (req, res) => {
     res.json({errno: 0})
+}
+
+
+exports.getProduct = (req, res) => {
+    mysql.getProduct((err, result) => {
+        if(err) {
+            return returnErr(res, err);
+        }
+        res.json({code: 200, data: result})
+    })
+}
+
+
+exports.saveAmount = (req, res) => {
+    let obj = req.body;
+    let values = [];
+    //解析数据
+    if(obj && obj.data) {
+        var data = JSON.parse(obj.data);
+        data.forEach((v, i) => {
+            values.push([v.product_id, v.amount || 0, obj.date, moment().format('YYYY-MM-DD HH:mm:ss')]);
+        });
+    }
+    mysql.saveAmount(values, (err, result) => {
+        if(err) {
+            console.log("err", err);
+            return returnErr(res, err);
+        }
+        res.json({code: 200})
+    })
 }

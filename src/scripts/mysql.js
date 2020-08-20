@@ -29,4 +29,16 @@ fs.readFile(path.join(__dirname, "../../config.json"), 'utf-8', (err, data) => {
         var sql = `insert logs set ?`;
         connection.query(sql, obj, callback)
     };
+
+    //获取产品列表
+    exports.getProduct = (callback) => {
+        var sql = `select product_id, name from product`;
+        connection.query(sql, callback);
+    }
+
+    //保存产品金额
+    exports.saveAmount = (obj, callback) => {
+        var sql =  `insert into amount(product_id, amount, date, modify_date)  values ? ON DUPLICATE KEY UPDATE amount=values(amount), modify_date=values(modify_date)`;
+        connection.query(sql, [obj], callback);
+    }
 })
