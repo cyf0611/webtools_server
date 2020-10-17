@@ -13,6 +13,7 @@ backRouter.get("/wxinfo", backController.wxinfo);
 backRouter.get("/getProduct",  backController.getProduct);
 //保存产品金额
 backRouter.post("/saveAmount",  backController.saveAmount);
-
+//获取权重
+backRouter.get("/getWeight", backController.getWeight);
 
 module.exports = backRouter;

@@ -77,3 +77,56 @@ exports.saveAmount = (req, res) => {
         res.json({code: 200})
     })
 }
+
+
+exports.getWeight = (req, res) => {
+    let all_topic_obj = {};
+    let befor_date = Date.parse(new Date())/1000 - 30*24*60*60;
+    let flag = 1;
+    request(getZhiHuApi(req.query.people, 1), (error, response, body) => {
+        let data = JSON.parse(body);
+
+        pageRequest(data.paging.next, true);
+        function pageRequest(url , is_has_data) {
+            if(is_has_data) {
+                for(let answer_index = 0;answer_index<data.data.length; answer_index++) {
+                    let answer_obj = data.data[answer_index];
+                    if(answer_obj.created_time<befor_date) {
+                        flag = 0;
+                        break;
+                    }
+                    answer_obj.question.topics.forEach((topic_obj) => {//遍历该问题话题数组
+                        if(all_topic_obj[topic_obj.id]) {
+                            all_topic_obj[topic_obj.id].answer_conut += 1;
+                            all_topic_obj[topic_obj.id].voteup_count += answer_obj.voteup_count;
+                        }else {
+                            all_topic_obj[topic_obj.id] = {
+                                answer_conut: 1,
+                                voteup_count: answer_obj.voteup_count
+                            }
+                        }
+                    })
+                }
+                request(url, (err, res, pageRequestBody) => {
+                    let pageRequestData = JSON.parse(pageRequestBody);
+                    pageRequest(pageRequestData.paging.next, pageRequestData.data.length && flag);
+                })
+            }
+        }
+
+        //计算得分
+        for(let k in all_topic_obj) {
+            let topic_obj = all_topic_obj[k];
+            topic_obj.score = (topic_obj.answer_conut + 3*Math.log(topic_obj.voteup_count)/Math.log(2))*10;
+        }
+        res.json(all_topic_obj);
+    });
+}
+
+function getZhiHuApi(people, type) {
+    switch(type) {
+        case 1://获取个人主页回答
+            return `https://api.zhihu.com/people/${people}/answers?include=data[*].voteup_count,thanks_count,label_info,question.topics`;
+            break;
+    }
+}
