@@ -81,18 +81,23 @@ exports.saveAmount = (req, res) => {
 
 exports.getWeight = (req, res) => {
     let all_topic_obj = {};
-    let befor_date = Date.parse(new Date())/1000 - 30*24*60*60;
+    let befor_date = Date.parse(new Date())/1000 - 31*24*60*60;
     let flag = 1;
     request(getZhiHuApi(req.query.people, 1), (error, response, body) => {
         let data = JSON.parse(body);
-
-        pageRequest(data.paging.next, true);
-        function pageRequest(url , is_has_data) {
+        pageRequest(data.paging.next, data, true);
+        function pageRequest(url, pageRequestData, is_has_data) {
             if(is_has_data) {
-                for(let answer_index = 0;answer_index<data.data.length; answer_index++) {
-                    let answer_obj = data.data[answer_index];
+                for(let answer_index = 0;answer_index<pageRequestData.data.length; answer_index++) {
+                    let answer_obj = pageRequestData.data[answer_index];
                     if(answer_obj.created_time<befor_date) {
                         flag = 0;
+                        //计算得分
+                        for(let k in all_topic_obj) {
+                            let topic_obj = all_topic_obj[k];
+                            topic_obj.score = (topic_obj.answer_conut + 3*Math.log(topic_obj.voteup_count)/Math.log(2))*10;
+                        }
+                        res.json(all_topic_obj);
                         break;
                     }
                     answer_obj.question.topics.forEach((topic_obj) => {//遍历该问题话题数组
@@ -109,17 +114,10 @@ exports.getWeight = (req, res) => {
                 }
                 request(url, (err, res, pageRequestBody) => {
                     let pageRequestData = JSON.parse(pageRequestBody);
-                    pageRequest(pageRequestData.paging.next, pageRequestData.data.length && flag);
+                    pageRequest(pageRequestData.paging.next, pageRequestData, pageRequestData.data.length && flag);
                 })
             }
         }
-
-        //计算得分
-        for(let k in all_topic_obj) {
-            let topic_obj = all_topic_obj[k];
-            topic_obj.score = (topic_obj.answer_conut + 3*Math.log(topic_obj.voteup_count)/Math.log(2))*10;
-        }
-        res.json(all_topic_obj);
     });
 }
 
